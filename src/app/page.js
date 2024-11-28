@@ -5,19 +5,21 @@ import { useState } from "react";
 export default function Home({ props }) {
 
   const workItemTypes = {
-    release: { id: 1, name: "Release" },
-    task: { id: 2, name: "Task" },
-    userStory: { id: 3, name: "User Story" },
-    bug: { id: 4, name: "Bug" },
+    release: { id: 16, name: "Release" },
+    task: { id: 3, name: "Task" },
+    userStory: { id: 2, name: "User Story" },
+    bug: { id: 1, name: "Bug" },
+    spike: { id: 5, name: "Spike" },
+    epic : { id: 6, name: "Epic" }
   };
 
   const [dataInicio, setDataInicio] = useState(new Date(2024, 10, 1));
   const [dataFim, setDataFim] = useState(new Date(2024, 10, 30));
-  const dados = props.data.filter((item) => {
+  const dados = props.data
+  .filter((item) => {
     return (
       ((new Date(item.last_end_time_end_time) >= dataInicio && new Date(item.last_end_time) <= dataFim) ||
-        (new Date(item.first_end_time) >= dataInicio && new Date(item.first_end_time) <= dataFim)) &&
-      (item.type_id == workItemTypes.task.id || item.type_id == workItemTypes.userStory.id)
+        (new Date(item.first_end_time) >= dataInicio && new Date(item.first_end_time) <= dataFim))
     );
   });
 
@@ -32,7 +34,8 @@ export default function Home({ props }) {
 
   const throwputSize = dados.reduce((accumulator, currentValue) => accumulator + currentValue.size, 0);
 
-  console.log(throwputSize);
+  const releases = dados.filter((item) => item.type_id == 16).length;
+
   return (
     <div className={styles.page}>
       <div>
@@ -94,6 +97,7 @@ export default function Home({ props }) {
         <h1 className={styles.title}>Kanbanize Metrics</h1>
         <p>throwput: {dados.length}</p>
         <p>story ponits: {throwputSize}</p>
+        <p>story ponits: {releases}</p>
       </main>
     </div>
   );
