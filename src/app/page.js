@@ -3,7 +3,17 @@ import { Card } from "@/components/card/card";
 import { useState } from "react";
 import styles from "./page.module.css";
 
+const teamNamesIds = {
+  Emanuel: 49,
+  Adolfo: 9,
+  Matheus: 10,
+  Chris: 11,
+  Davi: 12,
+};
+
 export default function Home({ props }) {
+  console.log({ props });
+
   const workItemTypes = {
     16: { name: "Release" },
     3: { name: "Task" },
@@ -12,15 +22,8 @@ export default function Home({ props }) {
     5: { name: "Spike" },
     6: { name: "Epic" },
   };
-  // const workItemTypes = {
-  //   release: { id: 16, name: "Release" },
-  //   task: { id: 3, name: "Task" },
-  //   userStory: { id: 2, name: "User Story" },
-  //   bug: { id: 1, name: "Bug" },
-  //   spike: { id: 5, name: "Spike" },
-  //   epic: { id: 6, name: "Epic" },
-  // };
 
+  const [pessoasSelecionadas, setPessoasSelecionadas] = useState([]);
   const [tiposSelecionado, setTiposSelecionado] = useState([]);
   const [dataInicio, setDataInicio] = useState(new Date(2024, 10, 1));
   const [dataFim, setDataFim] = useState(new Date(2024, 10, 30));
@@ -40,18 +43,28 @@ export default function Home({ props }) {
     setDataFim(lastDay);
   };
 
-  console.log(dados);
+  const filteredData = dados.filter((item) => {
+    if (tiposSelecionado.length > 0) {
+      if (!tiposSelecionado.includes(item.type_id)) {
+        return false;
+      }
+    }
 
-  const filteredData = tiposSelecionado.length !== 0 ? dados.filter((item) =>
-    tiposSelecionado.includes(item.type_id)
-  ) : dados;
+    if (pessoasSelecionadas.length > 0) {
+      if (!item.pessoas.some((id) => pessoasSelecionadas.includes(id))) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   const throwputSize = filteredData.reduce(
     (accumulator, currentValue) => accumulator + currentValue.size,
     0
   );
 
-  console.log(tiposSelecionado);
+  console.log(filteredData);
 
   const releases = dados.filter((item) => item.type_id == 16).length;
 
@@ -106,7 +119,7 @@ export default function Home({ props }) {
         <br />
         <div>
           <label>
-            <strong>Tipos:</strong>{" "}
+            <strong>Tipos de task:</strong>{" "}
             <select
               // value={tiposSelecionado}
               value={"default"}
@@ -144,11 +157,47 @@ export default function Home({ props }) {
                 </option>
               ))}
             </select>
-            {/* <input
-              type="date"
-              value={dataFim.toISOString().split("T")[0]}
-              onChange={(e) => setDataFim(new Date(e.target.value))}
-            /> */}
+          </label>
+        </div>
+        <div>
+          <label>
+            <strong>Pessoas:</strong>{" "}
+            <select
+              value={"default"}
+              onChange={(e) => {
+                const alreadySelected = pessoasSelecionadas.includes(
+                  parseInt(e.target.value)
+                );
+
+                if (alreadySelected) {
+                  setPessoasSelecionadas(
+                    pessoasSelecionadas.filter(
+                      (item) => item !== parseInt(e.target.value)
+                    )
+                  );
+                } else {
+                  setPessoasSelecionadas([
+                    ...pessoasSelecionadas,
+                    parseInt(e.target.value),
+                  ]);
+                }
+              }}
+            >
+              <option value="default">Selecione as pessoas</option>
+              {Object.entries(teamNamesIds).map(([key, value], i) => (
+                <option
+                  key={value}
+                  value={value}
+                  style={{
+                    background: pessoasSelecionadas.includes(parseInt(value))
+                      ? "purple"
+                      : "unset",
+                  }}
+                >
+                  {key}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 
@@ -162,7 +211,7 @@ export default function Home({ props }) {
           </p>
         </div>
       </div>
-      <div style={{display: "flex", flexDirection: "column", gap: 64}}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
         <main className={styles.main}>
           <h1 className={styles.title}>Metricas Gerais</h1>
           <div className={styles["cards-container"]}>
@@ -172,7 +221,7 @@ export default function Home({ props }) {
         <main className={styles.main}>
           <h1 className={styles.title}>Kanbanize Metrics</h1>
           <div className={styles["cards-container"]}>
-            <Card label="throwput" value={filteredData.length} />
+            <Card label="throughput" value={filteredData.length} />
             <Card label="story points" value={throwputSize} />
           </div>
         </main>
