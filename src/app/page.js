@@ -23,10 +23,11 @@ export default function Home({ props }) {
     6: { name: "Epic" },
   };
 
+  const [businessMapSizeMode, setBusinessMapSizeMode] = useState(false);
   const [pessoasSelecionadas, setPessoasSelecionadas] = useState([]);
   const [tiposSelecionado, setTiposSelecionado] = useState([]);
-  const [dataInicio, setDataInicio] = useState(new Date(2024, 10, 1));
-  const [dataFim, setDataFim] = useState(new Date(2024, 10, 30));
+  const [dataInicio, setDataInicio] = useState(new Date(2024, 11, 1, 0, 0, 0));
+  const [dataFim, setDataFim] = useState(new Date(2024, 10, 30, 23, 59, 59));
   const dados = props.data.filter((item) => {
     return (
       (new Date(item.last_end_time_end_time) >= dataInicio &&
@@ -36,9 +37,12 @@ export default function Home({ props }) {
     );
   });
 
+  console.log({ dataInicio, dataFim });
+
   const setMonthDates = (year, month) => {
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const firstDay = new Date(year, month, 1, 0, 0, 0);
+    // last day of the month and last hour of the day (23:59:59)
+    const lastDay = new Date(year, month + 1, 0, 23, 59, 59);
     setDataInicio(firstDay);
     setDataFim(lastDay);
   };
@@ -59,10 +63,16 @@ export default function Home({ props }) {
     return true;
   });
 
-  const throwputSize = filteredData.reduce(
-    (accumulator, currentValue) => accumulator + currentValue.size,
-    0
-  );
+  const throughputSize = filteredData.reduce((accumulator, currentValue) => {
+    if (
+      businessMapSizeMode &&
+      (currentValue.size === undefined || currentValue.size === null)
+    ) {
+      return accumulator + 1;
+    }
+
+    return accumulator + currentValue.size;
+  }, 0);
 
   console.log(filteredData);
 
@@ -200,6 +210,16 @@ export default function Home({ props }) {
             </select>
           </label>
         </div>
+        <div>
+          <label>
+            <strong>Calcular como o Business Map:</strong>{" "}
+            <input
+              type="checkbox"
+              value={businessMapSizeMode}
+              onChange={(e) => setBusinessMapSizeMode(e.target.checked)}
+            />
+          </label>
+        </div>
 
         <div>
           <h4>Datas Selecionadas:</h4>
@@ -222,7 +242,7 @@ export default function Home({ props }) {
           <h1 className={styles.title}>Kanbanize Metrics</h1>
           <div className={styles["cards-container"]}>
             <Card label="throughput" value={filteredData.length} />
-            <Card label="story points" value={throwputSize} />
+            <Card label="story points" value={throughputSize} />
           </div>
         </main>
       </div>
