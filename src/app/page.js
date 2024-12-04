@@ -30,14 +30,16 @@ export default function Home({ props }) {
   const [dataFim, setDataFim] = useState(new Date(2024, 10, 30, 23, 59, 59));
   const dados = props.data.filter((item) => {
     return (
-      (new Date(item.last_end_time_end_time) >= dataInicio &&
-        new Date(item.last_end_time) <= dataFim) ||
-      (new Date(item.first_end_time) >= dataInicio &&
-        new Date(item.first_end_time) <= dataFim)
+      new Date(item.first_start_time) >= dataInicio &&
+      new Date(item.first_end_time) <= dataFim
+      // (new Date(item.last_start_time) >= dataInicio &&
+      //   new Date(item.last_end_time) <= dataFim)
     );
   });
 
   console.log({ dataInicio, dataFim });
+
+  console.log("data", props);
 
   const setMonthDates = (year, month) => {
     const firstDay = new Date(year, month, 1, 0, 0, 0);
