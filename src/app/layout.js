@@ -19,11 +19,7 @@ export const metadata = {
 };
 
 const teamNamesIds = {
-  Emanuel: 49,
-  Adolfo: 9,
-  Matheus: 10,
-  Chris: 11,
-  Davi: 12,
+  Lucas: 43
 };
 
 export const teamNames = Object.keys(teamNamesIds);
@@ -33,10 +29,11 @@ export default async function RootLayout({ children }) {
   const url = "https://hsystem.kanbanize.com/api/v2/cards";
 
   const params = new URLSearchParams({
-    board_ids: 10,
+    //board_ids: 13,
     //workflow_ids: 62,
     page: 1,
     per_page: 1000,
+    state: "archived",
     // A list of properties for which you want to get additional details. The allowed properties at the moment are: custom_fields, stickers, tag_ids, co_owner_ids, watcher_ids, attachments, checked_column_checklist_items, initiative_details, annotations, subtasks, linked_cards, transitions, block_times, logged_times, logged_times_for_child_cards.
     expand: "co_owner_ids",
     fields:

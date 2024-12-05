@@ -4,11 +4,7 @@ import { useState } from "react";
 import styles from "./page.module.css";
 
 const teamNamesIds = {
-  Emanuel: 49,
-  Adolfo: 9,
-  Matheus: 10,
-  Chris: 11,
-  Davi: 12,
+  Lucas: 43
 };
 
 export default function Home({ props }) {
@@ -78,7 +74,7 @@ export default function Home({ props }) {
 
   console.log(filteredData);
 
-  const releases = dados.filter((item) => item.type_id == 16).length;
+  const bugs = dados.filter((item) => item.type_id == 1).length;
 
   return (
     <div className={styles.page}>
@@ -237,7 +233,7 @@ export default function Home({ props }) {
         <main className={styles.main}>
           <h1 className={styles.title}>Metricas Gerais</h1>
           <div className={styles["cards-container"]}>
-            <Card label="releases" value={releases} />
+            <Card label="bugs" value={bugs} />
           </div>
         </main>
         <main className={styles.main}>
