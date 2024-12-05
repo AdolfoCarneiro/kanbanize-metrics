@@ -1,0 +1,13 @@
+.card {
+  text-align: center;
+  background-color: #1c1c1c;
+  border-radius: 4px;
+  border: 1px solid #333;
+  padding: 2rem;
+  font-size: 2rem;
+}
+
+.card p {
+  display: inline;
+  color: #ffff00;
+}

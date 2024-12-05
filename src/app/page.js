@@ -1,38 +1,82 @@
-'use client'
-import styles from "./page.module.css";
+"use client";
+import { Card } from "@/components/card/card";
 import { useState } from "react";
+import styles from "./page.module.css";
+
+const teamNamesIds = {
+  Emanuel: 49,
+  Adolfo: 9,
+  Matheus: 10,
+  Chris: 11,
+  Davi: 12,
+};
 
 export default function Home({ props }) {
+  console.log({ props });
 
   const workItemTypes = {
-    release: { id: 16, name: "Release" },
-    task: { id: 3, name: "Task" },
-    userStory: { id: 2, name: "User Story" },
-    bug: { id: 1, name: "Bug" },
-    spike: { id: 5, name: "Spike" },
-    epic : { id: 6, name: "Epic" }
+    16: { name: "Release" },
+    3: { name: "Task" },
+    2: { name: "User Story" },
+    1: { name: "Bug" },
+    5: { name: "Spike" },
+    6: { name: "Epic" },
   };
 
-  const [dataInicio, setDataInicio] = useState(new Date(2024, 10, 1));
-  const [dataFim, setDataFim] = useState(new Date(2024, 10, 30));
-  const dados = props.data
-  .filter((item) => {
+  const [businessMapSizeMode, setBusinessMapSizeMode] = useState(false);
+  const [pessoasSelecionadas, setPessoasSelecionadas] = useState([]);
+  const [tiposSelecionado, setTiposSelecionado] = useState([]);
+  const [dataInicio, setDataInicio] = useState(new Date(2024, 11, 1, 0, 0, 0));
+  const [dataFim, setDataFim] = useState(new Date(2024, 10, 30, 23, 59, 59));
+  const dados = props.data.filter((item) => {
     return (
-      ((new Date(item.last_end_time_end_time) >= dataInicio && new Date(item.last_end_time) <= dataFim) ||
-        (new Date(item.first_end_time) >= dataInicio && new Date(item.first_end_time) <= dataFim))
+      new Date(item.first_start_time) >= dataInicio &&
+      new Date(item.first_end_time) <= dataFim
+      // (new Date(item.last_start_time) >= dataInicio &&
+      //   new Date(item.last_end_time) <= dataFim)
     );
   });
 
+  console.log({ dataInicio, dataFim });
+
+  console.log("data", props);
+
   const setMonthDates = (year, month) => {
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const firstDay = new Date(year, month, 1, 0, 0, 0);
+    // last day of the month and last hour of the day (23:59:59)
+    const lastDay = new Date(year, month + 1, 0, 23, 59, 59);
     setDataInicio(firstDay);
     setDataFim(lastDay);
   };
 
-  console.log(dados);
+  const filteredData = dados.filter((item) => {
+    if (tiposSelecionado.length > 0) {
+      if (!tiposSelecionado.includes(item.type_id)) {
+        return false;
+      }
+    }
 
-  const throwputSize = dados.reduce((accumulator, currentValue) => accumulator + currentValue.size, 0);
+    if (pessoasSelecionadas.length > 0) {
+      if (!item.pessoas.some((id) => pessoasSelecionadas.includes(id))) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const throughputSize = filteredData.reduce((accumulator, currentValue) => {
+    if (
+      businessMapSizeMode &&
+      (currentValue.size === undefined || currentValue.size === null)
+    ) {
+      return accumulator + 1;
+    }
+
+    return accumulator + currentValue.size;
+  }, 0);
+
+  console.log(filteredData);
 
   const releases = dados.filter((item) => item.type_id == 16).length;
 
@@ -52,10 +96,12 @@ export default function Home({ props }) {
                 border: "none",
                 borderRadius: "5px",
                 cursor: "pointer",
-                color: "black"
+                color: "black",
               }}
             >
-              {new Date(2024, index).toLocaleString("default", { month: "long" })}
+              {new Date(2024, index).toLocaleString("default", {
+                month: "long",
+              })}
             </button>
           ))}
         </div>
@@ -82,6 +128,101 @@ export default function Home({ props }) {
             />
           </label>
         </div>
+        <br />
+        <div>
+          <label>
+            <strong>Tipos de task:</strong>{" "}
+            <select
+              // value={tiposSelecionado}
+              value={"default"}
+              onChange={(e) => {
+                const alreadySelected = tiposSelecionado.includes(
+                  parseInt(e.target.value)
+                );
+
+                if (alreadySelected) {
+                  setTiposSelecionado(
+                    tiposSelecionado.filter(
+                      (item) => item !== parseInt(e.target.value)
+                    )
+                  );
+                } else {
+                  setTiposSelecionado([
+                    ...tiposSelecionado,
+                    parseInt(e.target.value),
+                  ]);
+                }
+              }}
+            >
+              <option value="default">Selecione as opções</option>
+              {Object.keys(workItemTypes).map((key, i) => (
+                <option
+                  key={key}
+                  value={key}
+                  style={{
+                    background: tiposSelecionado.includes(parseInt(key))
+                      ? "purple"
+                      : "unset",
+                  }}
+                >
+                  {workItemTypes[key].name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            <strong>Pessoas:</strong>{" "}
+            <select
+              value={"default"}
+              onChange={(e) => {
+                const alreadySelected = pessoasSelecionadas.includes(
+                  parseInt(e.target.value)
+                );
+
+                if (alreadySelected) {
+                  setPessoasSelecionadas(
+                    pessoasSelecionadas.filter(
+                      (item) => item !== parseInt(e.target.value)
+                    )
+                  );
+                } else {
+                  setPessoasSelecionadas([
+                    ...pessoasSelecionadas,
+                    parseInt(e.target.value),
+                  ]);
+                }
+              }}
+            >
+              <option value="default">Selecione as pessoas</option>
+              {Object.entries(teamNamesIds).map(([key, value], i) => (
+                <option
+                  key={value}
+                  value={value}
+                  style={{
+                    background: pessoasSelecionadas.includes(parseInt(value))
+                      ? "purple"
+                      : "unset",
+                  }}
+                >
+                  {key}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            <strong>Calcular como o Business Map:</strong>{" "}
+            <input
+              type="checkbox"
+              value={businessMapSizeMode}
+              onChange={(e) => setBusinessMapSizeMode(e.target.checked)}
+            />
+          </label>
+        </div>
+
         <div>
           <h4>Datas Selecionadas:</h4>
           <p>
@@ -92,13 +233,21 @@ export default function Home({ props }) {
           </p>
         </div>
       </div>
-      );
-      <main className={styles.main}>
-        <h1 className={styles.title}>Kanbanize Metrics</h1>
-        <p>throwput: {dados.length}</p>
-        <p>story ponits: {throwputSize}</p>
-        <p>story ponits: {releases}</p>
-      </main>
+      <div style={{ display: "flex", flexDirection: "column", gap: 64 }}>
+        <main className={styles.main}>
+          <h1 className={styles.title}>Metricas Gerais</h1>
+          <div className={styles["cards-container"]}>
+            <Card label="releases" value={releases} />
+          </div>
+        </main>
+        <main className={styles.main}>
+          <h1 className={styles.title}>Kanbanize Metrics</h1>
+          <div className={styles["cards-container"]}>
+            <Card label="throughput" value={filteredData.length} />
+            <Card label="story points" value={throughputSize} />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
