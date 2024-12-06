@@ -154,7 +154,15 @@ export default function Home({ props }) {
                 }
               }}
             >
-              <option value="default">Selecione as opções</option>
+              <option value="default">Selecione os tipos de task</option>
+              <div>
+                selecionados:{" "}
+                {tiposSelecionado.map((key, i) => (
+                  <span key={key} style={{ padding: "5px" }}>
+                    {workItemTypes[key].name}
+                  </span>
+                ))}
+              </div>
               {Object.keys(workItemTypes).map((key, i) => (
                 <option
                   key={key}
@@ -169,6 +177,14 @@ export default function Home({ props }) {
                 </option>
               ))}
             </select>
+            <div>
+              selecionados:{" "}
+              {tiposSelecionado.map((key, i) => (
+                <span key={key}>{workItemTypes[key].name}, </span>
+              ))}
+              {tiposSelecionado.length === 0 && "Todos selecionados"}
+            </div>
+            <br />
           </label>
         </div>
         <div>
@@ -210,6 +226,19 @@ export default function Home({ props }) {
                 </option>
               ))}
             </select>
+            <div>
+              selecionados:{" "}
+              {pessoasSelecionadas.map((key, i) => (
+                <span key={key}>
+                  {Object.keys(teamNamesIds).find(
+                    (item) => teamNamesIds[item] === key
+                  )}
+                  ,{" "}
+                </span>
+              ))}
+              {pessoasSelecionadas.length === 0 && "Todos selecionados"}
+            </div>
+            <br />
           </label>
         </div>
         <div>
